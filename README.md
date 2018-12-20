@@ -21,10 +21,11 @@ grant all privileges on database turbobee to turbobee;
 Connect with the user and create table and a test row:
 
 ```
-CREATE TABLE cache
+CREATE TABLE pages
 (
 id BIGSERIAL,
 qid varchar(32),
+target varchar(75)
 content_type varchar(10),
 content TEXT,
 created timestamp without time zone,
@@ -37,6 +38,7 @@ owner integer
 INSERT INTO cache (qid, content_type, content, created, updated, expires, eol, owner)
 VALUES (
 '2018EPJWC.18608001A',
+'ui.adsabs.harvard.edu/#abs/2018EPJWC.18608001A/abstract',
 'html',
 '<p>From db</p>',
 TIMESTAMP '2018-12-10 12:00:00',
