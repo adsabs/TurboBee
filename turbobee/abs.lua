@@ -13,21 +13,29 @@ function M.run()
     success, err = pg:connect()
 
     if success then
+        -- get full url
+        local url = ngx.var.host + ngx.var.uri
+
         local destination = ngx.var.request_uri:sub(6) -- Ignore '/abs/'
-        local bibcode = destination:sub(1, 19) -- Use only 19 characters
-        local result = pg:query("SELECT content FROM cache WHERE qid = " ..  pg:escape_literal(bibcode))
+
+        -- extract bibcode from url
+
+        -- local bibcode = destination:sub(1, 19) -- Use only 19 characters
+
+        local result = pg:query("SELECT content,content_type FROM pages WHERE target = " ..  pg:escape_literal(url))
+
         if result and result[1] and result[1]['content'] then
             ngx.say(result[1]['content'])
         else
-            --ngx.status = 404
-            --ngx.say("Record not found.")
-            --return ngx.exit(404)
+            -- ngx.status = 404
+            -- ngx.say("Record not found.")
+            -- return ngx.exit(404)
             local parameters = ngx.var.QUERY_STRING
             if parameters then
                 ngx.redirect("/#abs/" .. destination .. "?" .. parameters)
             else
                 ngx.redirect("/#abs/" .. destination)
-            end
+          end
         end
     else
         ngx.say("Could not connect to db: " .. err)
