@@ -15,11 +15,9 @@ function M.run()
     if success then
         -- get full url
         local url = ngx.var.host + ngx.var.uri
-
         local destination = ngx.var.request_uri:sub(6) -- Ignore '/abs/'
 
         -- extract bibcode from url
-
         -- local bibcode = destination:sub(1, 19) -- Use only 19 characters
 
         local result = pg:query("SELECT content,content_type FROM pages WHERE target = " ..  pg:escape_literal(url))
