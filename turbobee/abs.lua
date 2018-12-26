@@ -22,6 +22,9 @@ function M.run()
 
         local result = pg:query("SELECT content,content_type FROM pages WHERE target = " ..  pg:escape_literal(url))
 
+	-- set header to return content type from db 
+	ngx.header.content_type = result[1]['content_type']
+
         if result and result[1] and result[1]['content'] then
             ngx.say(result[1]['content'])
         else
@@ -48,6 +51,39 @@ end
 -- a simple test
 function M.add(v1, v2)
   return v1 + v2
+end
+
+-- test database connection
+function M.connect_to_db(temp_pg)
+  success, err = temp_pg:connect()
+
+  return success 
+end
+
+--
+function M.alterDB(table, target, columnName, value)
+  -- create local database?
+  -- pg_test
+
+  pg_test:("INSERT " .. value .. " INTO " columnName .. " WHERE target = " .. target)  
+end
+
+function M.
+end
+
+function M.
+end
+
+function M.
+end
+
+function M.
+end
+
+function M.
+end
+
+function M.
 end
 
 return M
