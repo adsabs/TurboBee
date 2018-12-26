@@ -68,22 +68,4 @@ function M.alterDB(table, target, columnName, value)
   pg_test:("INSERT " .. value .. " INTO " columnName .. " WHERE target = " .. target)  
 end
 
-function M.
-end
-
-function M.
-end
-
-function M.
-end
-
-function M.
-end
-
-function M.
-end
-
-function M.
-end
-
 return M
