@@ -25,7 +25,7 @@ CREATE TABLE pages
 (
 id BIGSERIAL,
 qid varchar(32),
-target varchar(75)
+target varchar(75),
 content_type varchar(10),
 content TEXT,
 created timestamp without time zone,
