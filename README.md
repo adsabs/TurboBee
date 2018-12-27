@@ -35,11 +35,11 @@ eol timestamp without time zone,
 owner integer
 );
 
-INSERT INTO cache (qid, content_type, content, created, updated, expires, eol, owner)
+INSERT INTO pages (qid, target, content_type, content, created, updated, expires, eol, owner)
 VALUES (
 '2018EPJWC.18608001A',
-'ui.adsabs.harvard.edu/#abs/2018EPJWC.18608001A/abstract',
 'html',
+'ui.adsabs.harvard.edu/#abs/2018EPJWC.18608001A/abstract',
 '<p>From db</p>',
 TIMESTAMP '2018-12-10 12:00:00',
 TIMESTAMP '2018-12-10 12:00:00',
