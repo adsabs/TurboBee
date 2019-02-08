@@ -19,7 +19,7 @@ describe("unit test -", function()
         },
         redirect = function(s) end,
         location = {
-            capture = spy.new(function(s) return { header = {}, status = 200, body = "<html></html>"} end)
+            capture = function(s) return { header = {}, status = 200, body = "<html></html>"} end
         },
         exit = function(s) end
     }
@@ -210,6 +210,7 @@ describe("unit test -", function()
         ngx.var.request_uri = "/search/"
         ngx.var.QUERY_STRING = "q=star&sort=date%20desc%2C%20bibcode%20desc&p_=0"
         ngx.location.capture = function(s) return { header = {}, status = 200, body = "<html></html>"} end
+        spy.on(_G.ngx.location, 'capture')
 
         -- run main function 
         search.run()
