@@ -1,7 +1,8 @@
 describe("unit test -", function()
   
-    -- import functions from abs.lua file 
+    -- import functions from abs.lua and search.lua files
     local abs = require('abs')
+    local search = require('search')
 
     -- define ngx object 
     ngx = {
@@ -9,7 +10,9 @@ describe("unit test -", function()
         print = function(s) print(s) end,
         var = {
             request_uri = "/abs/2018EPJWC.18608001A/abstract",
-            QUERY_STRING = "?whoknows=True"
+            QUERY_STRING = "?whoknows=True",
+            scheme = "http",
+            host = "ui.adsabs.harvard.edu"
         },
         header = {
             content_type = "html"
