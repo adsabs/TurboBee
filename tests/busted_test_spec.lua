@@ -222,7 +222,7 @@ describe("unit test -", function()
         assert.spy(_G.ngx.print).was.called_with("<html></html>")
 
         -- clear ngx function call history
-        _G.ngx.location.capture:clear()
+        --_G.ngx.location.capture:clear()
         _G.ngx.print:clear()
 
         ngx.location.capture = function(s) return nil end
