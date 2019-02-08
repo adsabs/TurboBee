@@ -207,8 +207,8 @@ describe("unit test -", function()
 
     it('checks the search proxy redirect', function()
         -- set ngx global var to string val
-        ngx.var.request_uri = "/search/"
-        ngx.var.QUERY_STRING = "q=star&sort=date%20desc%2C%20bibcode%20desc&p_=0"
+        ngx.var.request_uri = "/search/q=star&sort=date%20desc%2C%20bibcode%20desc&p_=0"
+        ngx.var.QUERY_STRING = nil
         ngx.location.capture = function(s) return { header = {}, status = 200, body = "<html></html>"} end
         spy.on(_G.ngx.location, 'capture')
 
@@ -216,7 +216,7 @@ describe("unit test -", function()
         search.run()
 
         assert.spy(_G.ngx.location.capture).was.called()
-        assert.spy(_G.ngx.location.capture).was.called_with("/proxy_search/" .. ngx.var.QUERY_STRING)
+        assert.spy(_G.ngx.location.capture).was.called_with("/proxy_search/" .. ngx.var.request_uri:sub(9))
      
         -- check that connect was called, correct error message displayed and 503 returned 
         assert.spy(_G.ngx.print).was.called_with("<html></html>")
