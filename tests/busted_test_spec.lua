@@ -226,12 +226,13 @@ describe("unit test -", function()
         _G.ngx.print:clear()
 
         ngx.location.capture = function(s) return nil end
+        spy.on(_G.ngx.location, 'capture')
 
         -- run main function 
         search.run()
 
         assert.spy(_G.ngx.location.capture).was.called()
-        assert.spy(_G.ngx.location.capture).was.called_with("/proxy_search/" .. ngx.var.QUERY_STRING)
+        assert.spy(_G.ngx.location.capture).was.called_with("/proxy_search/" .. ngx.var.request_uri:sub(9))
      
         -- check that connect was called, correct error message displayed and 503 returned 
         assert.spy(_G.ngx.say).was.called_with("Could not proxy to the service.")
