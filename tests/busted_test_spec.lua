@@ -27,6 +27,7 @@ describe("unit test -", function()
     -- mock ngx object using busted function
     -- store in global var
     _G.ngx = mock(ngx, false)
+    _G.ngx.location = mock(ngx.location, false)
     
     -- define pgmoon object 
     pg = {
