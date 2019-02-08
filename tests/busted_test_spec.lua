@@ -215,8 +215,8 @@ describe("unit test -", function()
         -- run main function 
         search.run()
 
-        assert.spy(_G.ngx.location.capture).was.called()
-        assert.spy(_G.ngx.location.capture).was.called_with("/proxy_search/" .. ngx.var.QUERY_STRING)
+        --assert.spy(_G.ngx.location.capture).was.called()
+        --assert.spy(_G.ngx.location.capture).was.called_with("/proxy_search/" .. ngx.var.QUERY_STRING)
      
         -- check that connect was called, correct error message displayed and 503 returned 
         assert.spy(_G.ngx.print).was.called_with("<html></html>")
@@ -230,8 +230,8 @@ describe("unit test -", function()
         -- run main function 
         search.run()
 
-        assert.spy(_G.ngx.location.capture).was.called()
-        assert.spy(_G.ngx.location.capture).was.called_with("/proxy_search/" .. ngx.var.QUERY_STRING)
+        --assert.spy(_G.ngx.location.capture).was.called()
+        --assert.spy(_G.ngx.location.capture).was.called_with("/proxy_search/" .. ngx.var.QUERY_STRING)
      
         -- check that connect was called, correct error message displayed and 503 returned 
         assert.spy(_G.ngx.say).was.called_with("Could not proxy to the service.")
@@ -243,7 +243,7 @@ describe("unit test -", function()
         assert.spy(_G.ngx.exit).was.called_with(503)
 
         -- clear ngx function call history
-        _G.ngx.location.capture:clear()
+        --_G.ngx.location.capture:clear()
         _G.ngx.say:clear()
         _G.ngx.exit:clear()
     end)
