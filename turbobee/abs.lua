@@ -41,10 +41,11 @@ function M.run()
                 ngx.header.content_type = result[1]['content_type']
                 ngx.say(result[1]['content'])
             else
-                if not result:
+                if not result then
                     -- add an empty record (marker for pipeline to process this URL)
                     pg:query("INSERT into pages (qid, target) values (md5(random()::text || clock_timestamp()::text)::cstring, " .. pg:escape_literal(target) .. ")")
-
+                end
+                
                 local parameters = ngx.var.QUERY_STRING
                 local url = ""
                 if parameters then
