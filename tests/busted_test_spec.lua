@@ -4,6 +4,7 @@ describe("unit test -", function()
     local abs = require('abs')
     local search = require('search')
 
+
     -- define ngx object 
     ngx = {
         say = function(s) print(s) end,
@@ -172,6 +173,7 @@ describe("unit test -", function()
     end)
 
     it('checks the return value when target is not found in db', function()
+
         -- define a local pg object whose query function returns nil 
         local pg_notfound = {
             connect = function(self) return true, nil end,
@@ -188,7 +190,8 @@ describe("unit test -", function()
         -- check that connect and query were called
         -- and location.capture was called with correct parameters 
         assert.spy(_G.pg.connect).was.called()
-        assert.spy(_G.pg.query).was.called()
+        assert.spy(_G.pg.query).was.called(2)
+        assert.same(_G.pg.query.calls[2].refs[2], "INSERT into pages (qid, target) values (md5(random()::text || clock_timestamp()::text)::cstring, http://ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A/abstract)")
         assert.spy(_G.ngx.location.capture).was.called()
         assert.spy(_G.ngx.location.capture).was.called_with("/proxy_abs/" .. ngx.var.request_uri:sub(6) .. "?" .. ngx.var.QUERY_STRING)
      
