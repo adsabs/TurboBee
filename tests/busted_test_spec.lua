@@ -41,25 +41,7 @@ describe("unit test -", function()
     -- store in global var
     _G.pg = mock(pg, false)
 
-    it('checks if bibcode is nil', function()
-        local b = abs.getBibcode()
-        assert.is_true(b ~= nil and b ~= "" and b ~= " ")
-    end)
-
-    it('checks that setting the bibcode from unit test works', function()
-        -- store string bibcode var
-        local bibcode = "2018EPJWC.18608001A"
-
-        -- set ngx global var to string val
-        ngx.var.request_uri = "/abs/" .. bibcode .. "/abstract"
-
-        -- get bibcode using abs function
-        local b = abs.getBibcode()
-
-        -- check that they are the same
-        assert.is_true(b == bibcode)
-    end)
-
+    
     it('checks that pgmoon connect to db function was called', function()
         -- store string bibcode var
         local bibcode = "2018EPJWC.18608001A"
@@ -76,13 +58,6 @@ describe("unit test -", function()
         _G.ngx.exit:clear()
     end)
 
-    it('checks if bibcode is correct length', function()
-        -- get bibcode 
-        local b = abs.getBibcode()
-
-        -- check length
-        assert(string.len(b) == 19)
-    end)
 
     it('checks the return value for url that is nil', function()
         -- set request equal to null
@@ -191,7 +166,7 @@ describe("unit test -", function()
         -- and location.capture was called with correct parameters 
         assert.spy(_G.pg.connect).was.called()
         assert.spy(_G.pg.query).was.called(2)
-        assert.same(_G.pg.query.calls[2].refs[2], "INSERT into pages (qid, target) values (md5(random()::text || clock_timestamp()::text)::cstring, http://ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A/abstract)")
+        assert.same(_G.pg.query.calls[2].refs[2], "INSERT into pages (qid, target) values (md5(random()::text || clock_timestamp()::text)::cstring, //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A)")
         assert.spy(_G.ngx.location.capture).was.called()
         assert.spy(_G.ngx.location.capture).was.called_with("/proxy_abs/" .. ngx.var.request_uri:sub(6) .. "?" .. ngx.var.QUERY_STRING)
      
@@ -250,6 +225,45 @@ describe("unit test -", function()
         _G.ngx.location.capture:clear()
         _G.ngx.say:clear()
         _G.ngx.exit:clear()
+    end)
+
+    it('checks various paths are caught', function()
+
+        
+        _G.ngx.location.capture:clear()
+        _G.pg.query:clear()
+        ngx.var.request_uri = "/abs/2018EPJWC.18608001A/abstract"
+        abs.run()
+        assert.spy(_G.pg.query).was.called(2)
+        assert.same(_G.pg.query.calls[1].refs[2], "SELECT content, content_type FROM pages WHERE target = //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A OR target = //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A/abstract ORDER BY updated DESC NULLS LAST")
+        assert.same(_G.pg.query.calls[2].refs[2], "INSERT into pages (qid, target) values (md5(random()::text || clock_timestamp()::text)::cstring, //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A)")
+        assert.spy(_G.ngx.location.capture).was.called()
+        assert.spy(_G.ngx.location.capture).was.called_with("/proxy_abs/" .. ngx.var.request_uri:sub(6))
+
+
+        _G.ngx.location.capture:clear()
+        _G.pg.query:clear()
+        ngx.var.request_uri = "/abs/2018EPJWC.18608001A"
+        abs.run()
+        assert.spy(_G.pg.query).was.called(2)
+        assert.same(_G.pg.query.calls[1].refs[2], "SELECT content, content_type FROM pages WHERE target = //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A OR target = //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A/abstract ORDER BY updated DESC NULLS LAST")
+        assert.same(_G.pg.query.calls[2].refs[2], "INSERT into pages (qid, target) values (md5(random()::text || clock_timestamp()::text)::cstring, //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A)")
+        assert.spy(_G.ngx.location.capture).was.called()
+        assert.spy(_G.ngx.location.capture).was.called_with("/proxy_abs/" .. ngx.var.request_uri:sub(6))
+     
+        
+        _G.ngx.location.capture:clear()
+        _G.pg.query:clear()
+        ngx.var.request_uri = "/abs/2018EPJWC.18608001A/metrics"
+        abs.run()
+        assert.spy(_G.pg.query).was.called(2)
+        assert.same(_G.pg.query.calls[2].refs[2], "INSERT into pages (qid, target) values (md5(random()::text || clock_timestamp()::text)::cstring, //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A/metrics)")
+        assert.spy(_G.ngx.location.capture).was.called()
+        assert.spy(_G.ngx.location.capture).was.called_with("/proxy_abs/" .. ngx.var.request_uri:sub(6))
+
+        
+
+
     end)
 
 end)
