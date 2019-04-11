@@ -16,22 +16,49 @@ local function split (input, s)
     return i, t
 end
 
+local function proxy_abs (destination, parameters)
+    local url = ""
+    success = false
+    err = ""
+
+    if parameters then
+        url = "/proxy_abs/" .. destination .. "?" .. parameters
+    else
+        url = "/proxy_abs/" .. destination
+    end
+
+    local res = ngx.location.capture(url)
+
+    if res then
+        ngx.header = res.header
+        ngx.status = res.status
+        ngx.print(res.body)
+        success = true
+    else
+        err = "Could not proxy to the service."
+        ngx.log(ngx.ERR, err)
+    end
+
+    return success, err
+end
+
 
 function M.run()
 
-    success, err = pg:connect()
+    local destination = ngx.var.request_uri:sub(6) -- Ignore '/abs/'
+    local parameters = ngx.var.QUERY_STRING
 
-    if success then
-        local destination = ngx.var.request_uri:sub(6) -- Ignore '/abs/'
+    _, success, err = pcall(pg['connect'], pg)
+
+    if success == true then
         local i, parts = split(destination, '/')
         local bibcode = ngx.unescape_uri(parts[1])
-        
 
         if bibcode == nil or i < 1 then
             ngx.status=404
             ngx.say("Invalid URI.")
             ngx.exit(404)
-        else 
+        else
             local target = "//" .. ngx.var.host .. "/abs/" -- //dev.adsabs.harvard.edu/abs/
             local result = nil
 
@@ -53,30 +80,26 @@ function M.run()
                         pg:query("INSERT into pages (qid, target) values (md5(random()::text || clock_timestamp()::text)::cstring, " .. pg:escape_literal(target .. bibcode) .. ")")
                     end
                 end
-                
-                local parameters = ngx.var.QUERY_STRING
-                local url = ""
-                if parameters then
-                    url = "/proxy_abs/" .. destination .. "?" .. parameters
-                else
-                    url = "/proxy_abs/" .. destination
-                end
-                local res = ngx.location.capture(url)
-                if res then
-                    ngx.header = res.header
-                    ngx.status = res.status
-                    ngx.print(res.body)
-                else
+
+                success, err = proxy_abs(destination, parameters)
+                if success ~= true then
                     ngx.status = 503
-                    ngx.say("Could not proxy to the service.")
+                    ngx.say(err)
                     return ngx.exit(503)
                 end
             end
         end
     else
-        ngx.status = 503
-        ngx.say("Could not connect to the database.")
-        return ngx.exit(503)
+        -- logging for db connection failure and errors
+        err = err or success
+        ngx.log(ngx.ERR, err)
+
+        success, err = proxy_abs(destination, parameters)
+        if success ~= true then
+            ngx.status = 503
+            ngx.say(err)
+            return ngx.exit(503)
+        end
     end
 
 end
