@@ -52,7 +52,7 @@ describe("unit test -", function()
         -- set ngx global var to string val
         ngx.var.request_uri = "/abs/" .. bibcode .. "/abstract"
 
-        abs.run()
+        abs.run(_G.pg)
 
         assert.spy(_G.pg.connect).was.called()
 
@@ -67,7 +67,7 @@ describe("unit test -", function()
         ngx.var.request_uri = ""
 
         -- call run function
-        local status = abs.run()
+        local status = abs.run(_G.pg)
 
         -- check display
         assert.spy(_G.ngx.say).was.called_with("Invalid URI.")
@@ -90,7 +90,7 @@ describe("unit test -", function()
         ngx.var.request_uri = "/abs/2018EPJWC.18608001AB/abstract"
 
         -- call run function
-        abs.run()
+        abs.run(_G.pg)
 
         -- check that query and escape_literal functions called
         -- and result from db is displayed
@@ -109,7 +109,7 @@ describe("unit test -", function()
         ngx.var.request_uri = "/abs/2018EPJWC.18608001A/abstract"
 
         -- call run function
-        abs.run()
+        abs.run(_G.pg)
 
         -- check that query and escape_literal functions called
         -- and result from db is displayed
@@ -136,7 +136,7 @@ describe("unit test -", function()
         _G.pg = mock(pg_fail, false)
 
         -- run main function
-        abs.run()
+        abs.run(_G.pg)
 
         -- check that connect was called, correct error message displayed
         assert.spy(_G.pg.connect).was.called()
@@ -155,7 +155,7 @@ describe("unit test -", function()
         spy.on(_G.ngx.location, 'capture')
 
         -- run main function
-        local status = abs.run()
+        local status = abs.run(_G.pg)
 
         assert.spy(_G.ngx.location.capture).was.called()
         assert.spy(_G.ngx.location.capture).was.called_with("/proxy_abs/" .. ngx.var.request_uri:sub(6) .. "?" .. ngx.var.QUERY_STRING)
@@ -186,7 +186,7 @@ describe("unit test -", function()
         _G.pg = mock(pg_notfound, false)
 
         -- run main function
-        abs.run()
+        abs.run(_G.pg)
 
         -- check that connect and query were called
         -- and location.capture was called with correct parameters
@@ -203,7 +203,7 @@ describe("unit test -", function()
         ngx.var.QUERY_STRING = nil
 
         -- run main function
-        abs.run()
+        abs.run(_G.pg)
 
         -- check that location.capture was called with correct parameters
         assert.spy(_G.ngx.location.capture).was.called_with("/proxy_abs/" .. ngx.var.request_uri:sub(6))
@@ -217,7 +217,7 @@ describe("unit test -", function()
         spy.on(_G.ngx.location, 'capture')
 
         -- run main function
-        search.run()
+        search.run(_G.pg)
 
         assert.spy(_G.ngx.location.capture).was.called()
         assert.spy(_G.ngx.location.capture).was.called_with("/proxy_search/" .. ngx.var.request_uri:sub(9))
@@ -233,7 +233,7 @@ describe("unit test -", function()
         spy.on(_G.ngx.location, 'capture')
 
         -- run main function
-        local status = search.run()
+        local status = search.run(_G.pg)
 
         assert.spy(_G.ngx.location.capture).was.called()
         assert.spy(_G.ngx.location.capture).was.called_with("/proxy_search/" .. ngx.var.request_uri:sub(9))
@@ -260,7 +260,7 @@ describe("unit test -", function()
         _G.ngx.location.capture:clear()
         _G.pg.query:clear()
         ngx.var.request_uri = "/abs/2018EPJWC.18608001A/abstract"
-        abs.run()
+        abs.run(_G.pg)
         assert.spy(_G.pg.query).was.called(2)
         assert.same(_G.pg.query.calls[1].refs[2], "SELECT content, content_type FROM pages WHERE target = //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A OR target = //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A/abstract ORDER BY updated DESC NULLS LAST")
         assert.same(_G.pg.query.calls[2].refs[2], "INSERT into pages (qid, target) values (md5(random()::text || clock_timestamp()::text)::cstring, //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A)")
@@ -271,7 +271,7 @@ describe("unit test -", function()
         _G.ngx.location.capture:clear()
         _G.pg.query:clear()
         ngx.var.request_uri = "/abs/2018EPJWC.18608001A"
-        abs.run()
+        abs.run(_G.pg)
         assert.spy(_G.pg.query).was.called(2)
         assert.same(_G.pg.query.calls[1].refs[2], "SELECT content, content_type FROM pages WHERE target = //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A OR target = //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A/abstract ORDER BY updated DESC NULLS LAST")
         assert.same(_G.pg.query.calls[2].refs[2], "INSERT into pages (qid, target) values (md5(random()::text || clock_timestamp()::text)::cstring, //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A)")
@@ -282,7 +282,7 @@ describe("unit test -", function()
         _G.ngx.location.capture:clear()
         _G.pg.query:clear()
         ngx.var.request_uri = "/abs/2018EPJWC.18608001A/metrics"
-        abs.run()
+        abs.run(_G.pg)
         assert.spy(_G.pg.query).was.called(2)
         assert.same(_G.pg.query.calls[2].refs[2], "INSERT into pages (qid, target) values (md5(random()::text || clock_timestamp()::text)::cstring, //ui.adsabs.harvard.edu/abs/2018EPJWC.18608001A/metrics)")
         assert.spy(_G.ngx.location.capture).was.called()

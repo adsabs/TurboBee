@@ -1,6 +1,6 @@
 local M = {}
 
-function M.run()
+function M.run(pg)
     local destination = ngx.var.request_uri:sub(9) -- Ignore '/search/'
     local parameters = ngx.var.QUERY_STRING
     local url = ""
