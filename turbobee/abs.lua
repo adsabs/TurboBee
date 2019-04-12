@@ -42,7 +42,7 @@ local function proxy_abs (destination, parameters)
 end
 
 
-function M.run()
+function M.run(pg)
 
     local destination = ngx.var.request_uri:sub(6) -- Ignore '/abs/'
     local parameters = ngx.var.QUERY_STRING
