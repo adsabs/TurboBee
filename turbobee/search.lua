@@ -11,8 +11,8 @@ function M.run(pg)
     end
     local res = ngx.location.capture(url)
     if res then
-         ngx.header = res.header
          ngx.status = res.status
+         ngx.header = res.header
          ngx.print(res.body)
      else
         local err = "Could not proxy to the service."

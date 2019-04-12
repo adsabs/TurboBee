@@ -28,8 +28,8 @@ local function proxy_abs (destination, parameters)
     local res = ngx.location.capture(url)
 
     if res then
-        ngx.header = res.header
         ngx.status = res.status
+        ngx.header = res.header
         ngx.print(res.body)
     else
         local err = "Could not proxy to the service."
@@ -56,6 +56,7 @@ function M.run(pg)
         if bibcode == nil or i < 1 then
             ngx.status = 404
             ngx.say("Invalid URI.")
+            return ngx.status
         else
             local target = "//" .. ngx.var.host .. "/abs/" -- //dev.adsabs.harvard.edu/abs/
             local result = nil
@@ -70,6 +71,7 @@ function M.run(pg)
                 ngx.status = 200
                 ngx.header.content_type = result[1]['content_type']
                 ngx.say(result[1]['content'])
+                return ngx.status
             else
                 if not result or result and result[1] == nil then
                     -- add an empty record (marker for pipeline to process this URL)
@@ -80,7 +82,7 @@ function M.run(pg)
                     end
                 end
 
-                ngx.status = proxy_abs(destination, parameters)
+                return proxy_abs(destination, parameters)
             end
         end
     else
@@ -88,10 +90,9 @@ function M.run(pg)
         err = err or success
         ngx.log(ngx.ERR, err)
 
-        ngx.status = proxy_abs(destination, parameters)
+        return proxy_abs(destination, parameters)
     end
 
-    return ngx.status
 end
 
 return M
