@@ -18,8 +18,6 @@ end
 
 local function proxy_abs (destination, parameters)
     local url = ""
-    success = false
-    err = ""
 
     if parameters then
         url = "/proxy_abs/" .. destination .. "?" .. parameters
@@ -33,13 +31,14 @@ local function proxy_abs (destination, parameters)
         ngx.header = res.header
         ngx.status = res.status
         ngx.print(res.body)
-        success = true
     else
-        err = "Could not proxy to the service."
+        local err = "Could not proxy to the service."
         ngx.log(ngx.ERR, err)
+        ngx.status = 503
+        ngx.say(err)
     end
 
-    return success, err
+    return ngx.status
 end
 
 
@@ -55,9 +54,8 @@ function M.run()
         local bibcode = ngx.unescape_uri(parts[1])
 
         if bibcode == nil or i < 1 then
-            ngx.status=404
+            ngx.status = 404
             ngx.say("Invalid URI.")
-            ngx.exit(404)
         else
             local target = "//" .. ngx.var.host .. "/abs/" -- //dev.adsabs.harvard.edu/abs/
             local result = nil
@@ -69,6 +67,7 @@ function M.run()
             end
 
             if result and result[1] and result[1]['content'] then
+                ngx.status = 200
                 ngx.header.content_type = result[1]['content_type']
                 ngx.say(result[1]['content'])
             else
@@ -81,12 +80,7 @@ function M.run()
                     end
                 end
 
-                success, err = proxy_abs(destination, parameters)
-                if success ~= true then
-                    ngx.status = 503
-                    ngx.say(err)
-                    return ngx.exit(503)
-                end
+                ngx.status = proxy_abs(destination, parameters)
             end
         end
     else
@@ -94,14 +88,10 @@ function M.run()
         err = err or success
         ngx.log(ngx.ERR, err)
 
-        success, err = proxy_abs(destination, parameters)
-        if success ~= true then
-            ngx.status = 503
-            ngx.say(err)
-            return ngx.exit(503)
-        end
+        ngx.status = proxy_abs(destination, parameters)
     end
 
+    return ngx.status
 end
 
 return M

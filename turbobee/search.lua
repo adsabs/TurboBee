@@ -15,10 +15,12 @@ function M.run()
          ngx.status = res.status
          ngx.print(res.body)
      else
+        local err = "Could not proxy to the service."
+        ngx.log(ngx.ERR, err)
         ngx.status = 503
-        ngx.say("Could not proxy to the service.")
-        return ngx.exit(503)
+        ngx.say(err)
     end
+    return ngx.status
 end
 
 return M
