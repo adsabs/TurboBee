@@ -67,16 +67,17 @@ describe("unit test -", function()
         ngx.var.request_uri = ""
 
         -- call run function
-        abs.run()
+        local status = abs.run()
 
         -- check display
         assert.spy(_G.ngx.say).was.called_with("Invalid URI.")
 
         -- check that it exits
-        assert.spy(_G.ngx.exit).was.called()
+        --assert.spy(_G.ngx.exit).was.called()
 
         -- check exit code
-        assert.spy(_G.ngx.exit).was.called_with(404)
+        --assert.spy(_G.ngx.exit).was.called_with(404)
+        assert.same(status, 404)
 
         -- clear call history
         _G.ngx.say:clear()
@@ -154,7 +155,7 @@ describe("unit test -", function()
         spy.on(_G.ngx.location, 'capture')
 
         -- run main function
-        abs.run()
+        local status = abs.run()
 
         assert.spy(_G.ngx.location.capture).was.called()
         assert.spy(_G.ngx.location.capture).was.called_with("/proxy_abs/" .. ngx.var.request_uri:sub(6) .. "?" .. ngx.var.QUERY_STRING)
@@ -163,10 +164,11 @@ describe("unit test -", function()
         assert.spy(_G.ngx.say).was.called_with("Could not proxy to the service.")
         --
         -- check that it exits
-        assert.spy(_G.ngx.exit).was.called()
+        --assert.spy(_G.ngx.exit).was.called()
 
         -- check exit code
-        assert.spy(_G.ngx.exit).was.called_with(503)
+        --assert.spy(_G.ngx.exit).was.called_with(503)
+        assert.same(status, 503)
 
 
     end)
@@ -231,7 +233,7 @@ describe("unit test -", function()
         spy.on(_G.ngx.location, 'capture')
 
         -- run main function
-        search.run()
+        local status = search.run()
 
         assert.spy(_G.ngx.location.capture).was.called()
         assert.spy(_G.ngx.location.capture).was.called_with("/proxy_search/" .. ngx.var.request_uri:sub(9))
@@ -240,10 +242,11 @@ describe("unit test -", function()
         assert.spy(_G.ngx.say).was.called_with("Could not proxy to the service.")
         --
         -- check that it exits
-        assert.spy(_G.ngx.exit).was.called()
+        --assert.spy(_G.ngx.exit).was.called()
 
         -- check exit code
-        assert.spy(_G.ngx.exit).was.called_with(503)
+        --assert.spy(_G.ngx.exit).was.called_with(503)
+        assert.same(status, 503)
 
         -- clear ngx function call history
         _G.ngx.location.capture:clear()
